@@ -112,9 +112,7 @@ async def get_rates(message: Message) -> None:
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(
-        " Останній актуальний файл - /get_rates\n\nЗгенерувати новий файл - /get_new_rates"
-        )
+    await message.answer(" Останній актуальний файл - /get_rates\n\nЗгенерувати новий файл - /get_new_rates")
 
 
 async def main() -> None:
