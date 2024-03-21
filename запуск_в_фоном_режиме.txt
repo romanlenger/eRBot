@@ -1,1 +1,8 @@
+git clone https://github.com/romanlenger/exchange_rates_bot.git
+
+pip install -r requirements.txt
+
+
 pythonw.exe bot.py
+        or
+nohup python3 bot.py &
