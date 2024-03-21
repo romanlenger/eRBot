@@ -11,8 +11,8 @@ import subprocess
 import os
 import datetime
 import shutil
-import win32com.client
-    
+import win32com.client as win32
+
 dp = Dispatcher()
 load_dotenv(find_dotenv())
 
@@ -67,19 +67,34 @@ def create_new_file(file_path: str) -> str:
 
 
 def update_excel_file(file_path: str) -> str:
-    excel = win32com.client.Dispatch("Excel.Application")
-    excel.Visible = False  
-    excel.DisplayAlerts = False  
-    
-    wb = excel.Workbooks.Open(file_path)
-    wb.RefreshAll() 
-    wb.Save()
-    wb.Close()
+    try:
+        excel = win32.Dispatch("Excel.Application")
+        excel.Visible = False
+        excel.DisplayAlerts = False
+        
+        wb = excel.Workbooks.Open(file_path)
+        
+        # Получаем доступ к коллекции запросов Power Query
+        connections = wb.Connections
+        
+        # Обновляем каждый запрос Power Query
+        for connection in connections:
+            if connection.Type == win32.constants.xlConnectionTypeOLEDB:
+                connection.OLEDBConnection.BackgroundQuery = False
+                connection.Refresh()
+        
+        # Сохраняем и закрываем книгу
+        wb.Save()
+        wb.Close()
 
-    excel.Quit()
+        excel.Quit()
 
-    logging.info("Запросы успешно обновлены.")
-    return file_path
+        logging.info("Все запросы Power Query в файле Excel успешно обновлены.")
+        return file_path
+   
+    except Exception as e:
+        logging.error(f"Ошибка при обновлении запросов Power Query в файле Excel: {e}")
+        return None
 
 
 @dp.message(Command("get_new_rates", prefix='/'))
@@ -90,9 +105,12 @@ async def get_rates(message: Message) -> None:
     logging.info(f'GETTING NEW FILE ---> ID: {user_id}| Name: {user_full_name}| Time: {time.asctime()}\n')
 
     run_update_kurs()
+
     latest_file = find_latest_excel_file(kurses)
     file_path = create_new_file(latest_file)
-    new_excel_file = FSInputFile(update_excel_file(file_path=file_path))
+
+    updated_file = update_excel_file(file_path=file_path)
+    new_excel_file = FSInputFile(updated_file)
 
     await message.answer_document(new_excel_file)
 
