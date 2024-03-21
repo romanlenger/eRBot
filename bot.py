@@ -87,7 +87,7 @@ async def get_rates(message: Message) -> None:
     user_full_name = message.from_user.full_name
     user_id = message.from_user.id
 
-    logging.info(f'GETTING NEW FILE ---> ID: {user_id}| Name: {user_full_name}| Time: {time.asctime()}')
+    logging.info(f'GETTING NEW FILE ---> ID: {user_id}| Name: {user_full_name}| Time: {time.asctime()}\n')
 
     run_update_kurs()
     latest_file = find_latest_excel_file(kurses)
@@ -102,7 +102,7 @@ async def get_rates(message: Message) -> None:
     user_full_name = message.from_user.full_name
     user_id = message.from_user.id
 
-    logging.info(f'GETTING ACTUAL FILE ---> ID: {user_id}| Name: {user_full_name}| Time: {time.asctime()}')
+    logging.info(f'GETTING ACTUAL FILE ---> ID: {user_id}| Name: {user_full_name}| Time: {time.asctime()}\n')
 
     latest_file = find_latest_excel_file(kurses)
     excel_file = FSInputFile(latest_file)
