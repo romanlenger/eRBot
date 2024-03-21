@@ -1,6 +1,5 @@
 .env
 venv/
-getExchangeRates.py
 .vscode/
 __pycache__/
 connect.xlsx

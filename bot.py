@@ -2,99 +2,18 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import FSInputFile
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
-from variables import kurses, update_kurs, interpreter
 from dotenv import load_dotenv, find_dotenv
+
 import asyncio
 import logging
 import time
-import subprocess
 import os
-import datetime
-import shutil
-import win32com.client as win32
+
+import getExchangeRates as ger
+from variables import RATES
 
 dp = Dispatcher()
 load_dotenv(find_dotenv())
-
-
-def run_update_kurs() -> None:
-    script_path = update_kurs
-    python_interpreter = interpreter
-    subprocess.run([python_interpreter, script_path])
-
-
-def find_latest_excel_file(folder_path: str) -> str:
-    latest_date = datetime.datetime.min
-    latest_file = None
-
-    for root, dirs, files in os.walk(folder_path):
-        for file_name in files:
-            if file_name.endswith('.xlsx'):
-                try:
-                    date_str = file_name.split(' ')[3].split('.')[:2]  # Дата в названии файла после разделения по пробелу и точке
-                    file_date = datetime.datetime.strptime('.'.join(date_str), "%d.%m")
-                    if file_date > latest_date:
-                        latest_date = file_date
-                        latest_file = os.path.join(root, file_name)
-                except (IndexError, ValueError) as error:
-                    logging.error(error)
-                    continue
-
-    return latest_file
-
-
-def create_new_file(file_path: str) -> str:
-    if file_path is not None:
-        today = datetime.datetime.now()
-        if today.hour < 17:
-            next_date = today
-        else:
-            next_date = today + datetime.timedelta(days=1)
-        new_file_name = f"курс валют на {next_date.strftime('%d.%m.%Y')}.xlsx"
-
-        new_file_path = os.path.join(os.path.dirname(file_path), new_file_name)
-
-        if not os.path.exists(new_file_path):
-            shutil.copy(file_path, new_file_path)
-            logging.info(f"Создан новый файл: {new_file_path}")
-        else:
-            logging.warning('Такой файл уже существует')
-    else:
-        logging.error('Невозможно создать новый файл, возможно передано None')
-        return None
-
-    return new_file_path
-
-
-def update_excel_file(file_path: str) -> str:
-    try:
-        excel = win32.Dispatch("Excel.Application")
-        excel.Visible = False
-        excel.DisplayAlerts = False
-        
-        wb = excel.Workbooks.Open(file_path)
-        
-        # Получаем доступ к коллекции запросов Power Query
-        connections = wb.Connections
-        
-        # Обновляем каждый запрос Power Query
-        for connection in connections:
-            if connection.Type == win32.constants.xlConnectionTypeOLEDB:
-                connection.OLEDBConnection.BackgroundQuery = False
-                connection.Refresh()
-        
-        # Сохраняем и закрываем книгу
-        wb.Save()
-        wb.Close()
-
-        excel.Quit()
-
-        logging.info("Все запросы Power Query в файле Excel успешно обновлены.")
-        return file_path
-   
-    except Exception as e:
-        logging.error(f"Ошибка при обновлении запросов Power Query в файле Excel: {e}")
-        return None
 
 
 @dp.message(Command("get_new_rates", prefix='/'))
@@ -104,12 +23,12 @@ async def get_rates(message: Message) -> None:
 
     logging.info(f'GETTING NEW FILE ---> ID: {user_id}| Name: {user_full_name}| Time: {time.asctime()}\n')
 
-    run_update_kurs()
+    ger.run_update_kurs()
 
-    latest_file = find_latest_excel_file(kurses)
-    file_path = create_new_file(latest_file)
+    latest_file = ger.find_latest_excel_file(RATES)
+    file_path = ger.create_new_file(latest_file)
 
-    updated_file = update_excel_file(file_path=file_path)
+    updated_file = ger.update_excel_file(file_path=file_path)
     new_excel_file = FSInputFile(updated_file)
 
     await message.answer_document(new_excel_file)
@@ -122,7 +41,7 @@ async def get_rates(message: Message) -> None:
 
     logging.info(f'GETTING ACTUAL FILE ---> ID: {user_id}| Name: {user_full_name}| Time: {time.asctime()}\n')
 
-    latest_file = find_latest_excel_file(kurses)
+    latest_file = ger.find_latest_excel_file(RATES)
     excel_file = FSInputFile(latest_file)
 
     await message.answer_document(excel_file)
@@ -130,7 +49,7 @@ async def get_rates(message: Message) -> None:
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(" Останній актуальний файл - /get_rates\n\nЗгенерувати новий файл - /get_new_rates")
+    await message.answer("Останній актуальний файл - /get_rates\n\nЗгенерувати новий файл - /get_new_rates")
 
 
 async def main() -> None:

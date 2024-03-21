@@ -61,27 +61,22 @@ def update_excel_file(file_path: str) -> str:
         excel = win32.Dispatch("Excel.Application")
         excel.Visible = False
         excel.DisplayAlerts = False
-        
         wb = excel.Workbooks.Open(file_path)
         
-        # Получаем доступ к коллекции запросов Power Query
-        connections = wb.Connections
-        
         # Обновляем каждый запрос Power Query
-        for connection in connections:
+        for connection in wb.Connections:
             if connection.Type == win32.constants.xlConnectionTypeOLEDB:
                 connection.OLEDBConnection.BackgroundQuery = False
                 connection.Refresh()
         
-        # Сохраняем и закрываем книгу
         wb.Save()
         wb.Close()
 
         excel.Quit()
-        logging.info("Все запросы Power Query в файле Excel успешно обновлены.")
+        logging.info("Запросы Power Query успешно обновлены.")
         return file_path
    
     except Exception as e:
-        logging.error(f"Ошибка при обновлении запросов Power Query в файле Excel: {e}")
+        logging.error(f"Ошибка при обновлении запросов Power Query: {e}")
         return None
 
