@@ -9,5 +9,5 @@ url_mb = 'https://minfin.com.ua/ua/currency/mb/'
 url_banks = 'https://minfin.com.ua/ua/currency/banks/'
 
 RATES = r'D:\DALNOBOY\exchange_rates\data\all'
-UPDATE_SCRIPT = r"D:\DALNOBOY\exchange_rates\parser_1.py"
+UPDATE_SCRIPT = r"D:\DALNOBOY\exchange_rates\scripts\parser_1.py"
 INTERPRET = r"D:\DALNOBOY\exchange_rates\venv\Scripts\python.exe"

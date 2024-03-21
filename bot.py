@@ -9,7 +9,7 @@ import logging
 import time
 import os
 
-import getExchangeRates as ger
+import scripts.getExchangeRates as ger
 from variables import RATES
 
 dp = Dispatcher()
