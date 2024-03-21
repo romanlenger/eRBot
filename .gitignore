@@ -1,2 +1,8 @@
 .env
 venv/
+getExchangeRates.py
+запуск_в_фоном_режиме.txt
+.vscode/
+__pycache__/
+connect.xlsx
+nbu_api.json
