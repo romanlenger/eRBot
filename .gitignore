@@ -5,3 +5,4 @@ __pycache__/
 nbu_api.json
 logs.log
 .gitignore
+bot.py
