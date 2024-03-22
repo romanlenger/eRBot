@@ -59,10 +59,15 @@ def save_user_data(user_data: dict) -> None:
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Вітаю, {message.from_user.first_name}!\n /login для підтвердження доступу")
+    await message.answer(f"Вітаю, {message.from_user.first_name}!\n /login для підтвердження доступу\n /get_rates отримати курси валют")
 
 
-@router.message(Command('login'))
+@router.message(LoginFilter(is_login=True),Command('login'))
+async def already_loginned(message: Message):
+    await message.answer('Ви вже успішно підтвердили доступ, можете отримати курси командою /get_rates')
+
+
+@router.message(LoginFilter(is_login=False),Command('login'))
 async def login_start(message: Message, state: FSMContext):
     await state.set_state(LoginState.waiting_for_password)
     await message.answer("Будь ласка, введіть пароль")
@@ -87,5 +92,8 @@ async def login_password(message: Message, state: FSMContext):
 async def get_rates(message: Message):
     # Відправляєм користувачу курси валют
     await message.reply('Ви готові отримати курси валют(тест)')
-    pass
 
+
+@router.message(LoginFilter(is_login=False), Command("get_rates"))
+async def get_rates(message: Message):
+    await message.reply('Підтвердіть доступ - /login')

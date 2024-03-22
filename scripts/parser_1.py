@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup as bs
 import pandas as pd
 import json
 import re
-from variables import url_nbu, headers, url_mukachevo, url_mb, url_banks
+from app.variables import url_nbu, headers, url_mukachevo, url_mb, url_banks
 
 
 # Курс НБУ
