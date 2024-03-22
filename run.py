@@ -7,6 +7,7 @@ load_dotenv(find_dotenv())
 
 async def main() -> None:
     bot = Bot(token=os.getenv('TOKEN'))
+    dp = Dispatcher()
     await dp.start_polling(bot)
 
 
