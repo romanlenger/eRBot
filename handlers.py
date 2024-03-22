@@ -1,6 +1,8 @@
 from aiogram import Router
 from aiogram.types import Message
+from aiogram.dispatcher import FSMContext
 from aiogram.filters import CommandStart, Command, BoundFilter
+from aiogram.dispatcher.filters.state import State, StatesGroup
 from dotenv import load_dotenv, find_dotenv
 import json
 
@@ -14,28 +16,55 @@ class LoginFilter(BoundFilter):
         self.is_login = is_login
 
     async def check(self, message: types.Message) -> bool:
-        pass
+        user_id = message.from_user.id
+        if not user_id:
+            return False  
 
+        with open('users.json', 'r') as file:
+            users = json.load(file)
+
+        for user in users:
+            if user.get('id') == user_id:
+                return True 
+        return False
+
+
+class LoginState(State):
+    waiting_for_password = State()
+    
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Вітаю, {message.from_user.name}!")
+    await message.answer(f"Вітаю, {message.from_user.name}!\nНапишіть /login для отримання доступу")
+
+
+class LoginState(StatesGroup):
+    waiting_for_password = State()
+
+
+@router.message(Command('login'))
+async def login_start(message: Message):
+    await set_state(LoginState.waiting_for_password)
+    await message.answer("Будь ласка, введіть пароль")
+
+
+@router.message(state=LoginState.waiting_for_password)
+async def login_password(message: Message, state: FSMContext):
+    password = message.text.strip()
+    if password == os.getenv('PASSWORD'):
         user_data = {
             "id": message.from_user.id,
             "full_name": message.from_user.full_name
         }
         save_user_data(user_data)
-
-
-@router.message(LoginFilter(True), Command("get_rates"))
-async def get_rates(message: Message) -> Any:
-    await message.answer('У вас є доступ до курсів валют!')
-
-
-@router.message()
-async def handle_password(message: Message):
-    if message.text == os.getenv('PASSWORD'):
-
-        await message.answer("Доступ надано.")
+        await message.answer("Успішний вхід!")
+        await state.finish()
     else:
-        await message.answer("Невірний пароль, спробуйте ще раз.")
+        await message.answer("Пароль невірний. Спробуйте ще раз.")
+
+
+@router.message(LoginFilter(is_loginned=True), Command("get_rates"))
+async def get_rates(message: Message) -> Any:
+    # Відправляєм користувачу курси валют
+    pass
+
