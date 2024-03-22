@@ -38,10 +38,6 @@ async def command_start_handler(message: Message) -> None:
     await message.answer(f"Вітаю, {message.from_user.name}!\nНапишіть /login для отримання доступу")
 
 
-class LoginState(StatesGroup):
-    waiting_for_password = State()
-
-
 @router.message(Command('login'))
 async def login_start(message: Message):
     await set_state(LoginState.waiting_for_password)
