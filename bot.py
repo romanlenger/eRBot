@@ -1,20 +1,39 @@
 from aiogram import Bot, Dispatcher
-from aiogram.types import FSInputFile
+from aiogram.types import FSInputFile, Message
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message
 from dotenv import load_dotenv, find_dotenv
 
 import asyncio
 import logging
 import time
 import os
+import json
 
 import scripts.getExchangeRates as ger
 from variables import RATES
 
 dp = Dispatcher()
 load_dotenv(find_dotenv())
+USERS_FILE = "users.json"
+PASSWORD = "your_password_here"
 
+
+def save_user_data(user_data: dict) -> None:
+    """
+    Сохраняет данные о пользователе.
+    """
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "w") as f:
+            json.dump([], f)
+
+    with open(USERS_FILE, "r+") as f:
+        data = json.load(f)
+        user_ids = [user['id'] for user in data]
+        if user_data['id'] not in user_ids:
+            data.append(user_data)
+            f.seek(0)
+            json.dump(data, f)
+        
 
 @dp.message(Command("get_new_rates", prefix='/'))
 async def get_rates(message: Message) -> None:
@@ -49,7 +68,13 @@ async def get_rates(message: Message) -> None:
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer("Останній актуальний файл - /get_rates\n\nЗгенерувати новий файл - /get_new_rates")
+    await message.answer("Вітаю")
+    
+    user_data = {
+        "id": message.from_user.id,
+        "full_name": message.from_user.full_name
+    }
+    save_user_data(user_data)
 
 
 async def main() -> None:
