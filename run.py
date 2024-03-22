@@ -1,5 +1,8 @@
 import asyncio
 from aiogram import Bot, Dispatcher
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 
 async def main() -> None:
