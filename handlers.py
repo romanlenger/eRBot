@@ -7,7 +7,7 @@ import json
 load_dotenv(find_dotenv())
 router = Router()
 
-class loginFilter(BoundFilter):
+class LoginFilter(BoundFilter):
     key = 'is_loginned'
 
     def __init__(self, is_login):
@@ -27,7 +27,7 @@ async def command_start_handler(message: Message) -> None:
         save_user_data(user_data)
 
 
-@router.message(loginFilter(True), Command("get_rates"))
+@router.message(LoginFilter(True), Command("get_rates"))
 async def get_rates(message: Message) -> Any:
     await message.answer('У вас є доступ до курсів валют!')
 
