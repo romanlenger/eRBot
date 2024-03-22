@@ -10,7 +10,6 @@ router = Router()
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.answer(f"Вітаю, {message.from_user.name}, я щодня о 17:30 надсилаю актульні курси валют!")
-    await message.answer("Введіть пароль доступу: ")
 
 
 @router.message()
