@@ -8,6 +8,7 @@ import json
 import os
 import logging
 from variables import USERS_FILE
+from scripts.getExchangeRates import run_update_kurs
 
 load_dotenv(find_dotenv())
 router = Router()
@@ -90,7 +91,7 @@ async def login_password(message: Message, state: FSMContext):
 
 @router.message(LoginFilter(is_login=True), Command("get_rates"))
 async def get_rates(message: Message):
-    # Відправляєм користувачу курси валют
+    run_update_kurs()
     await message.reply('Ви готові отримати курси валют(тест)')
 
 

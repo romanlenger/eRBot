@@ -1,8 +1,9 @@
-import requests
-from bs4 import BeautifulSoup as bs
-import pandas as pd
-import json
 import re
+import json
+import time
+import requests
+import pandas as pd
+from bs4 import BeautifulSoup as bs
 from app.variables import url_nbu, headers, url_mukachevo, url_mb, url_banks
 
 
@@ -84,8 +85,10 @@ def get_euro_m(url, headers):
 
 def main():
     mukachevo_euro = get_euro_m(url_mukachevo, headers)
+    time.sleep(1.1)
     mb = get_mb(url_mb, headers)
     nbu = get_nbu(url_nbu, headers)
+    time.sleep(1.1)
     banks = get_banks(url_banks, headers)
 
     dfdict = {
@@ -101,7 +104,7 @@ def main():
     try:
         result_df = pd.DataFrame.from_dict(dfdict, orient='index').transpose().apply(lambda x: x.explode() if x.dtype == 'O' else x)
 
-        with pd.ExcelWriter(f'connect.xlsx', engine='xlsxwriter', mode='w') as writer:
+        with pd.ExcelWriter(f'exchange_rates.xlsx', engine='xlsxwriter', mode='w') as writer:
             result_df.to_excel(writer, sheet_name='курсы', index=False)
     except Exception as e:
         print(e)
