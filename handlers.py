@@ -39,7 +39,7 @@ async def command_start_handler(message: Message) -> None:
 
 
 @router.message(Command('login'))
-async def login_start(message: Message):
+async def login_start(message: Message, state: FSMContext):
     await set_state(LoginState.waiting_for_password)
     await message.answer("Будь ласка, введіть пароль")
 
