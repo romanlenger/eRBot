@@ -77,7 +77,7 @@ async def already_loggedin(message: Message):
 @router.message(LoginFilter(is_login=True), Command("get_rates"))
 async def get_rates(message: Message):
     excel_file = FSInputFile('exchange_rates.xlsx')
-    await message.answer_document(excel_file, caption=f'Актуальні курси валют на {datetime.now()}')
+    await message.answer_document(excel_file, caption=f'Актуальні курси валют на {datetime.now().date()}')
 
 
 
