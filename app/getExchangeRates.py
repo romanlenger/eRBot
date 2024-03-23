@@ -4,7 +4,7 @@ import logging
 import datetime
 import shutil
 import win32com.client as win32
-from app.variables import UPDATE_SCRIPT, INTERPRET
+from variables import UPDATE_SCRIPT, INTERPRET
 
 
 def run_update_kurs() -> None:

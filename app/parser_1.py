@@ -4,7 +4,7 @@ import time
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup as bs
-from app.variables import url_nbu, headers, url_mukachevo, url_mb, url_banks
+from variables import url_nbu, headers, url_mukachevo, url_mb, url_banks
 
 
 # Курс НБУ
@@ -42,8 +42,12 @@ def get_banks(url, headers):
         return raw
     
     pattern = r'\d{2}\,\d{2}'
+    try:
+        result = [re.findall(pattern, b) for b in raw]
+    except Exception as e:
+        print(e)
 
-    return [re.findall(pattern, b) for b in raw]
+    return result
 
 
 # Курс на Межбанке
@@ -104,7 +108,7 @@ def main():
     try:
         result_df = pd.DataFrame.from_dict(dfdict, orient='index').transpose().apply(lambda x: x.explode() if x.dtype == 'O' else x)
 
-        with pd.ExcelWriter(f'exchange_rates.xlsx', engine='xlsxwriter', mode='w') as writer:
+        with pd.ExcelWriter('exchange_rates.xlsx', engine='xlsxwriter', mode='w') as writer:
             result_df.to_excel(writer, sheet_name='курсы', index=False)
     except Exception as e:
         print(e)
