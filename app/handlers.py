@@ -60,7 +60,7 @@ async def already_loggedin(message: Message):
 @router.message(LoginFilter(is_login=True), Command("get_rates"))
 async def get_rates(message: Message):
     excel_file = FSInputFile('exchange_rates.xlsx')
-    await message.answer_document(excel_file, caption=f'Актуальні курси валют на {datetime.now().date()}')
+    await message.answer_document(excel_file, caption=f'Актуальні курси валют на <b>{datetime.now().date()}</b>\nНаступне оновлення о 9 ранку.')
 
 
 
@@ -88,7 +88,7 @@ async def login_process(message: Message, state: FSMContext):
         save_user_data(user_id, user_name)
 
         await state.clear()
-        await message.answer("Успішний вхід!\n Використайте команду /get_rates, щоб отримати акутальні курси валют.")
+        await message.answer("Успішний вхід!\n Використайте команду /get_rates, щоб отримати акутальні курси валют.") 
     else:
         await message.answer("Пароль невірний. Спробуйте ще раз.")
 
